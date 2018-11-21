@@ -36,9 +36,12 @@ public class GradleBuildAssert {
 	}
 
 	public GradleBuildAssert hasSpringBootBuildScriptPlugin(String bootVersion) {
-		return contains("ext {").contains("springBootVersion = '" + bootVersion + "'")
-				.contains(
-						"classpath(\"org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}\")");
+		return contains("ext {").contains(
+				"org.springframework.boot:spring-boot-gradle-plugin:" + bootVersion);
+	}
+
+	public GradleBuildAssert hasSpringBootPlugin(String bootVersion) {
+		return contains("id 'org.springframework.boot' version '" + bootVersion + "'");
 	}
 
 	public GradleBuildAssert hasJavaVersion(String javaVersion) {
