@@ -24,13 +24,14 @@ import io.spring.initializr.actuate.stat.ProjectRequestDocument.ClientInformatio
 import io.spring.initializr.actuate.stat.ProjectRequestDocument.DependencyInformation;
 import io.spring.initializr.actuate.stat.ProjectRequestDocument.ErrorStateInformation;
 import io.spring.initializr.actuate.stat.ProjectRequestDocument.VersionInformation;
-import io.spring.initializr.generator.ProjectFailedEvent;
-import io.spring.initializr.generator.ProjectRequest;
-import io.spring.initializr.generator.ProjectRequestEvent;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.metadata.InitializrMetadataProvider;
 import io.spring.initializr.util.Agent;
 import io.spring.initializr.util.Version;
+import io.spring.initializr.web.project.ProjectFailedEvent;
+import io.spring.initializr.web.project.ProjectRequest;
+import io.spring.initializr.web.project.ProjectRequestEvent;
+import io.spring.initializr.web.project.WebProjectRequest;
 
 import org.springframework.util.StringUtils;
 
@@ -49,8 +50,7 @@ public class ProjectRequestDocumentFactory {
 
 	public ProjectRequestDocument createDocument(ProjectRequestEvent event) {
 		InitializrMetadata metadata = this.metadataProvider.get();
-		ProjectRequest request = event.getProjectRequest();
-
+		WebProjectRequest request = event.getProjectRequest();
 		ProjectRequestDocument document = new ProjectRequestDocument();
 		document.setGenerationTimestamp(event.getTimestamp());
 		document.setGroupId(request.getGroupId());
@@ -124,7 +124,7 @@ public class ProjectRequestDocumentFactory {
 		return null;
 	}
 
-	private ClientInformation determineClientInformation(ProjectRequest request) {
+	private ClientInformation determineClientInformation(WebProjectRequest request) {
 		Agent agent = determineAgent(request);
 		String ip = determineIp(request);
 		String country = determineCountry(request);
@@ -134,7 +134,7 @@ public class ProjectRequestDocumentFactory {
 		return null;
 	}
 
-	private Agent determineAgent(ProjectRequest request) {
+	private Agent determineAgent(WebProjectRequest request) {
 		String userAgent = (String) request.getParameters().get("user-agent");
 		if (StringUtils.hasText(userAgent)) {
 			return Agent.fromUserAgent(userAgent);
@@ -142,13 +142,13 @@ public class ProjectRequestDocumentFactory {
 		return null;
 	}
 
-	private String determineIp(ProjectRequest request) {
+	private String determineIp(WebProjectRequest request) {
 		String candidate = (String) request.getParameters().get("cf-connecting-ip");
 		return (StringUtils.hasText(candidate)) ? candidate
 				: (String) request.getParameters().get("x-forwarded-for");
 	}
 
-	private String determineCountry(ProjectRequest request) {
+	private String determineCountry(WebProjectRequest request) {
 		String candidate = (String) request.getParameters().get("cf-ipcountry");
 		if (StringUtils.hasText(candidate) && !"xx".equalsIgnoreCase(candidate)) {
 			return candidate;

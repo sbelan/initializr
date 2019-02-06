@@ -19,7 +19,6 @@ package io.spring.initializr.web.project;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.spring.initializr.generator.BasicProjectRequest;
 import io.spring.initializr.generator.InvalidProjectRequestException;
 import io.spring.initializr.generator.buildsystem.BuildSystem;
 import io.spring.initializr.generator.buildsystem.gradle.GradleBuildSystem;
@@ -37,8 +36,7 @@ import io.spring.initializr.util.Version;
 import org.springframework.util.StringUtils;
 
 /**
- * Validates a {@link BasicProjectRequest} and creates a {@link ProjectDescription} from
- * it.
+ * Validates a {@link ProjectRequest} and creates a {@link ProjectDescription} from it.
  *
  * @author Madhura Bhave
  */
@@ -46,7 +44,7 @@ public class ProjectRequestToDescriptionConverter {
 
 	private static final Version VERSION_1_5_0 = Version.parse("1.5.0.RELEASE");
 
-	public ProjectDescription convert(BasicProjectRequest request,
+	public ProjectDescription convert(ProjectRequest request,
 			InitializrMetadata metadata) {
 		validate(request, metadata);
 		ProjectDescription description = new ProjectDescription();
@@ -70,7 +68,7 @@ public class ProjectRequestToDescriptionConverter {
 		return description;
 	}
 
-	private void validate(BasicProjectRequest request, InitializrMetadata metadata) {
+	private void validate(ProjectRequest request, InitializrMetadata metadata) {
 		validateSpringBootVersion(request);
 		validateType(request.getType(), metadata);
 		validateLanguage(request.getLanguage(), metadata);
@@ -78,7 +76,7 @@ public class ProjectRequestToDescriptionConverter {
 		validateDependencies(request, metadata);
 	}
 
-	private void validateSpringBootVersion(BasicProjectRequest request) {
+	private void validateSpringBootVersion(ProjectRequest request) {
 		Version bootVersion = Version.safeParse(request.getBootVersion());
 		if (bootVersion != null && bootVersion.compareTo(VERSION_1_5_0) < 0) {
 			throw new InvalidProjectRequestException("Invalid Spring Boot version "
@@ -118,7 +116,7 @@ public class ProjectRequestToDescriptionConverter {
 		}
 	}
 
-	private void validateDependencies(BasicProjectRequest request,
+	private void validateDependencies(ProjectRequest request,
 			InitializrMetadata metadata) {
 		List<String> dependencies = (!request.getStyle().isEmpty() ? request.getStyle()
 				: request.getDependencies());
@@ -131,18 +129,17 @@ public class ProjectRequestToDescriptionConverter {
 		});
 	}
 
-	private BuildSystem getBuildSystem(BasicProjectRequest request) {
+	private BuildSystem getBuildSystem(ProjectRequest request) {
 		return (request.getType().startsWith("gradle")) ? new GradleBuildSystem()
 				: new MavenBuildSystem();
 	}
 
-	private String getPackageName(BasicProjectRequest request,
-			InitializrMetadata metadata) {
+	private String getPackageName(ProjectRequest request, InitializrMetadata metadata) {
 		return metadata.getConfiguration().cleanPackageName(request.getPackageName(),
 				metadata.getPackageName().getContent());
 	}
 
-	private String getApplicationName(BasicProjectRequest request,
+	private String getApplicationName(ProjectRequest request,
 			InitializrMetadata metadata) {
 		if (!StringUtils.hasText(request.getApplicationName())) {
 			return metadata.getConfiguration().generateApplicationName(request.getName());
@@ -150,13 +147,13 @@ public class ProjectRequestToDescriptionConverter {
 		return request.getApplicationName();
 	}
 
-	private String getSpringBootVersion(BasicProjectRequest request,
+	private String getSpringBootVersion(ProjectRequest request,
 			InitializrMetadata metadata) {
 		return (request.getBootVersion() != null) ? request.getBootVersion()
 				: metadata.getBootVersions().getDefault().getId();
 	}
 
-	private List<Dependency> getResolvedDependencies(BasicProjectRequest request,
+	private List<Dependency> getResolvedDependencies(ProjectRequest request,
 			String springBootVersion, InitializrMetadata metadata) {
 		List<String> depIds = (!request.getStyle().isEmpty() ? request.getStyle()
 				: request.getDependencies());

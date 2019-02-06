@@ -22,9 +22,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import io.spring.initializr.generator.ProjectFailedEvent;
-import io.spring.initializr.generator.ProjectGeneratedEvent;
-import io.spring.initializr.generator.ProjectRequest;
 import io.spring.initializr.generator.io.IndentingWriterFactory;
 import io.spring.initializr.generator.io.SimpleIndentStrategy;
 import io.spring.initializr.generator.project.ProjectDirectoryFactory;
@@ -88,7 +85,7 @@ public class ProjectGenerationInvokerTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	void invokeProjectStructureGeneration() {
-		ProjectRequest request = new ProjectRequest();
+		WebProjectRequest request = new WebProjectRequest();
 		request.setType("maven-project");
 		request.initialize(metadata);
 		File file = this.invoker.invokeProjectStructureGeneration(request);
@@ -101,7 +98,7 @@ public class ProjectGenerationInvokerTests {
 
 	@Test
 	void invokeProjectStructureGenerationFailureShouldPublishFailureEvent() {
-		ProjectRequest request = new ProjectRequest();
+		WebProjectRequest request = new WebProjectRequest();
 		request.initialize(metadata);
 		request.setType("foo-bar");
 		try {
@@ -114,7 +111,7 @@ public class ProjectGenerationInvokerTests {
 
 	@Test
 	void invokeBuildGenerationForMavenBuild() {
-		ProjectRequest request = new ProjectRequest();
+		WebProjectRequest request = new WebProjectRequest();
 		request.setType("maven-project");
 		request.initialize(metadata);
 		byte[] bytes = this.invoker.invokeBuildGeneration(request);
@@ -130,7 +127,7 @@ public class ProjectGenerationInvokerTests {
 
 	@Test
 	void invokeBuildGenerationForGradleBuild() {
-		ProjectRequest request = new ProjectRequest();
+		WebProjectRequest request = new WebProjectRequest();
 		request.initialize(metadata);
 		request.setType("gradle-project");
 		byte[] bytes = this.invoker.invokeBuildGeneration(request);
@@ -143,7 +140,7 @@ public class ProjectGenerationInvokerTests {
 
 	@Test
 	void invokeBuildGenerationFailureShouldPublishFailureEvent() {
-		ProjectRequest request = new ProjectRequest();
+		WebProjectRequest request = new WebProjectRequest();
 		request.initialize(metadata);
 		request.setType("foo-bar");
 		try {
@@ -170,7 +167,7 @@ public class ProjectGenerationInvokerTests {
 
 	@Test
 	void cleanupTempFilesShouldOnlyCleanupSpecifiedDir() {
-		ProjectRequest request = new ProjectRequest();
+		WebProjectRequest request = new WebProjectRequest();
 		request.initialize(metadata);
 		request.setType("gradle-project");
 		File file = this.invoker.invokeProjectStructureGeneration(request);

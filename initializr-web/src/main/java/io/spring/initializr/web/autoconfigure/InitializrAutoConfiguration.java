@@ -17,22 +17,16 @@
 package io.spring.initializr.web.autoconfigure;
 
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.spring.initializr.generator.ProjectGenerator;
-import io.spring.initializr.generator.ProjectRequestPostProcessor;
-import io.spring.initializr.generator.ProjectRequestResolver;
 import io.spring.initializr.generator.ProjectResourceLocator;
 import io.spring.initializr.generator.io.IndentingWriterFactory;
 import io.spring.initializr.generator.io.SimpleIndentStrategy;
 import io.spring.initializr.generator.project.ProjectDirectoryFactory;
-import io.spring.initializr.generator.spike.ProjectGeneratorInvoker;
 import io.spring.initializr.metadata.DependencyMetadataProvider;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.metadata.InitializrMetadataBuilder;
@@ -46,7 +40,6 @@ import io.spring.initializr.web.support.DefaultDependencyMetadataProvider;
 import io.spring.initializr.web.support.DefaultInitializrMetadataProvider;
 import io.spring.initializr.web.ui.UiController;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -69,9 +62,6 @@ import org.springframework.web.servlet.resource.ResourceUrlProvider;
  * Auto-configuration} to configure Spring initializr. In a web environment, configures
  * the necessary controller to serve the applications from the root context.
  *
- * <p>
- * Project generation can be customized by defining a custom {@link ProjectGenerator}.
- *
  * @author Stephane Nicoll
  */
 @Configuration
@@ -80,27 +70,7 @@ import org.springframework.web.servlet.resource.ResourceUrlProvider;
 		RestTemplateAutoConfiguration.class })
 public class InitializrAutoConfiguration {
 
-	private final List<ProjectRequestPostProcessor> postProcessors;
-
-	public InitializrAutoConfiguration(
-			ObjectProvider<List<ProjectRequestPostProcessor>> postProcessors) {
-		List<ProjectRequestPostProcessor> list = postProcessors.getIfAvailable();
-		this.postProcessors = (list != null) ? list : new ArrayList<>();
-	}
-
-	@Bean
-	@ConditionalOnMissingBean
-	public ProjectGenerator projectGenerator() {
-		return new ProjectGenerator();
-	}
-
 	// Bridge to new API
-	@Bean
-	@ConditionalOnMissingBean
-	public ProjectGeneratorInvoker projectGeneratorInvoker(
-			ApplicationContext applicationContext) {
-		return new ProjectGeneratorInvoker(applicationContext);
-	}
 
 	@Bean
 	@ConditionalOnMissingBean
@@ -123,12 +93,6 @@ public class InitializrAutoConfiguration {
 		TemplateRenderer templateRenderer = new TemplateRenderer();
 		templateRenderer.setCache(cache);
 		return templateRenderer;
-	}
-
-	@Bean
-	@ConditionalOnMissingBean
-	public ProjectRequestResolver projectRequestResolver() {
-		return new ProjectRequestResolver(this.postProcessors);
 	}
 
 	@Bean

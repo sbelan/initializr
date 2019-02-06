@@ -28,8 +28,6 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 
 import com.samskivert.mustache.Mustache;
-import io.spring.initializr.generator.BasicProjectRequest;
-import io.spring.initializr.generator.ProjectRequest;
 import io.spring.initializr.metadata.DependencyMetadata;
 import io.spring.initializr.metadata.DependencyMetadataProvider;
 import io.spring.initializr.metadata.InitializrMetadata;
@@ -103,9 +101,8 @@ public class MainController extends AbstractInitializrController {
 	}
 
 	@ModelAttribute
-	public BasicProjectRequest projectRequest(
-			@RequestHeader Map<String, String> headers) {
-		ProjectRequest request = new ProjectRequest();
+	public WebProjectRequest projectRequest(@RequestHeader Map<String, String> headers) {
+		WebProjectRequest request = new WebProjectRequest();
 		request.getParameters().putAll(headers);
 		request.initialize(this.metadataProvider.get());
 		return request;
@@ -245,28 +242,25 @@ public class MainController extends AbstractInitializrController {
 
 	@RequestMapping(path = { "/pom", "/pom.xml" })
 	@ResponseBody
-	public ResponseEntity<byte[]> pom(BasicProjectRequest request) {
+	public ResponseEntity<byte[]> pom(WebProjectRequest request) {
 		request.setType("maven-build");
-		byte[] mavenPom = this.projectGenerationInvoker
-				.invokeBuildGeneration((ProjectRequest) request);
+		byte[] mavenPom = this.projectGenerationInvoker.invokeBuildGeneration(request);
 		return createResponseEntity(mavenPom, "application/octet-stream", "pom.xml");
 	}
 
 	@RequestMapping(path = { "/build", "/build.gradle" })
 	@ResponseBody
-	public ResponseEntity<byte[]> gradle(BasicProjectRequest request) {
+	public ResponseEntity<byte[]> gradle(WebProjectRequest request) {
 		request.setType("gradle-build");
-		byte[] gradleBuild = this.projectGenerationInvoker
-				.invokeBuildGeneration((ProjectRequest) request);
+		byte[] gradleBuild = this.projectGenerationInvoker.invokeBuildGeneration(request);
 		return createResponseEntity(gradleBuild, "application/octet-stream",
 				"build.gradle");
 	}
 
 	@RequestMapping("/starter.zip")
 	@ResponseBody
-	public ResponseEntity<byte[]> springZip(BasicProjectRequest basicRequest)
+	public ResponseEntity<byte[]> springZip(WebProjectRequest request)
 			throws IOException {
-		ProjectRequest request = (ProjectRequest) basicRequest;
 		File dir = this.projectGenerationInvoker
 				.invokeProjectStructureGeneration(request);
 		File download = this.projectGenerationInvoker.createDistributionFile(dir, ".zip");
@@ -294,9 +288,8 @@ public class MainController extends AbstractInitializrController {
 
 	@RequestMapping(path = "/starter.tgz", produces = "application/x-compress")
 	@ResponseBody
-	public ResponseEntity<byte[]> springTgz(BasicProjectRequest basicRequest)
+	public ResponseEntity<byte[]> springTgz(WebProjectRequest request)
 			throws IOException {
-		ProjectRequest request = (ProjectRequest) basicRequest;
 		File dir = this.projectGenerationInvoker
 				.invokeProjectStructureGeneration(request);
 		File download = this.projectGenerationInvoker.createDistributionFile(dir,
@@ -325,7 +318,7 @@ public class MainController extends AbstractInitializrController {
 				"application/x-compress");
 	}
 
-	private static String generateFileName(ProjectRequest request, String extension) {
+	private static String generateFileName(WebProjectRequest request, String extension) {
 		String tmp = request.getArtifactId().replaceAll(" ", "_");
 		try {
 			return URLEncoder.encode(tmp, "UTF-8") + "." + extension;
@@ -336,7 +329,8 @@ public class MainController extends AbstractInitializrController {
 	}
 
 	private static String getWrapperScript(ProjectRequest request) {
-		String script = ("gradle".equals(request.getBuild()) ? "gradlew" : "mvnw");
+		String script = (request.getType() != null
+				&& request.getType().startsWith("gradle")) ? "gradlew" : "mvnw";
 		return (request.getBaseDir() != null) ? request.getBaseDir() + "/" + script
 				: script;
 	}

@@ -18,9 +18,9 @@ package io.spring.initializr.actuate.stat;
 
 import java.util.Arrays;
 
-import io.spring.initializr.generator.ProjectFailedEvent;
-import io.spring.initializr.generator.ProjectGeneratedEvent;
-import io.spring.initializr.generator.ProjectRequest;
+import io.spring.initializr.web.project.ProjectFailedEvent;
+import io.spring.initializr.web.project.ProjectGeneratedEvent;
+import io.spring.initializr.web.project.WebProjectRequest;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentForSimpleProject() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
 		assertThat(document.getArtifactId()).isEqualTo("demo");
@@ -61,7 +61,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentWithRequestIp() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.getParameters().put("x-forwarded-for", "10.0.0.123");
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -71,7 +71,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentWithRequestIpv6() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.getParameters().put("x-forwarded-for", "2001:db8:a0b:12f0::1");
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -81,7 +81,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentWithCloudFlareHeaders() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.getParameters().put("cf-connecting-ip", "10.0.0.123");
 		request.getParameters().put("cf-ipcountry", "BE");
 		ProjectGeneratedEvent event = createEvent(request);
@@ -92,7 +92,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentWithCloudFlareIpv6() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.getParameters().put("cf-connecting-ip", "2001:db8:a0b:12f0::1");
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -102,7 +102,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentWithCloudFlareHeadersAndOtherHeaders() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.getParameters().put("cf-connecting-ip", "10.0.0.123");
 		request.getParameters().put("x-forwarded-for", "192.168.1.101");
 		ProjectGeneratedEvent event = createEvent(request);
@@ -113,7 +113,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentWithCloudFlareCountrySetToXX() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.getParameters().put("cf-connecting-ip", "Xx"); // case insensitive
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -122,7 +122,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentWithUserAgent() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.getParameters().put("user-agent", "HTTPie/0.8.0");
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -132,7 +132,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentWithUserAgentNoVersion() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.getParameters().put("user-agent", "IntelliJ IDEA");
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -142,7 +142,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentInvalidJavaVersion() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.setJavaVersion("1.2");
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -157,7 +157,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentInvalidLanguage() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.setLanguage("c++");
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -172,7 +172,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentInvalidPackaging() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.setPackaging("ear");
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -187,7 +187,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentInvalidType() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.setType("ant-project");
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -202,7 +202,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentInvalidDependency() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		request.setDependencies(Arrays.asList("web", "invalid", "data-jpa", "invalid-2"));
 		ProjectGeneratedEvent event = createEvent(request);
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -221,7 +221,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 
 	@Test
 	void createDocumentWithProjectFailedEvent() {
-		ProjectRequest request = createProjectRequest();
+		WebProjectRequest request = createProjectRequest();
 		ProjectFailedEvent event = new ProjectFailedEvent(request,
 				new IllegalStateException("my test message"));
 		ProjectRequestDocument document = this.factory.createDocument(event);
@@ -234,7 +234,7 @@ class ProjectRequestDocumentFactoryTests extends AbstractInitializrStatTests {
 		assertThat(document.getErrorState().getMessage()).isEqualTo("my test message");
 	}
 
-	private ProjectGeneratedEvent createEvent(ProjectRequest request) {
+	private ProjectGeneratedEvent createEvent(WebProjectRequest request) {
 		return new ProjectGeneratedEvent(request, createBuild(), getMetadata());
 	}
 

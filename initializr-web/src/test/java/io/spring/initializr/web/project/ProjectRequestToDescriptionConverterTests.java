@@ -18,7 +18,6 @@ package io.spring.initializr.web.project;
 
 import java.util.Collections;
 
-import io.spring.initializr.generator.BasicProjectRequest;
 import io.spring.initializr.generator.InvalidProjectRequestException;
 import io.spring.initializr.generator.project.ProjectDescription;
 import io.spring.initializr.generator.version.Version;
@@ -49,7 +48,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	public void convertWhenTypeIsInvalidShouldThrowException() {
-		BasicProjectRequest request = getRequest();
+		ProjectRequest request = getRequest();
 		request.setType("foo-build");
 		assertThatExceptionOfType(InvalidProjectRequestException.class)
 				.isThrownBy(() -> this.converter.convert(request, this.metadata))
@@ -58,7 +57,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertWhenSpringBootVersionInvalidShouldThrowException() {
-		BasicProjectRequest request = getRequest();
+		ProjectRequest request = getRequest();
 		request.setBootVersion("1.2.3.M4");
 		assertThatExceptionOfType(InvalidProjectRequestException.class)
 				.isThrownBy(() -> this.converter.convert(request, this.metadata))
@@ -68,7 +67,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	public void convertWhenPackagingIsInvalidShouldThrowException() {
-		BasicProjectRequest request = getRequest();
+		ProjectRequest request = getRequest();
 		request.setPackaging("star");
 		assertThatExceptionOfType(InvalidProjectRequestException.class)
 				.isThrownBy(() -> this.converter.convert(request, this.metadata))
@@ -77,7 +76,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	public void convertWhenLanguageIsInvalidShouldThrowException() {
-		BasicProjectRequest request = getRequest();
+		ProjectRequest request = getRequest();
 		request.setLanguage("english");
 		assertThatExceptionOfType(InvalidProjectRequestException.class)
 				.isThrownBy(() -> this.converter.convert(request, this.metadata))
@@ -86,7 +85,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertWhenDependencyNotPresentShouldThrowException() {
-		BasicProjectRequest request = getRequest();
+		ProjectRequest request = getRequest();
 		request.setDependencies(Collections.singletonList("invalid"));
 		assertThatExceptionOfType(InvalidProjectRequestException.class)
 				.isThrownBy(() -> this.converter.convert(request, this.metadata))
@@ -95,7 +94,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertShouldSetApplicationNameForProjectDescriptionFromRequestWhenPresent() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		request.setApplicationName("MyApplication");
 		ProjectDescription description = this.converter.convert(request, this.metadata);
 		assertThat(description.getApplicationName()).isEqualTo("MyApplication");
@@ -103,14 +102,14 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertShouldSetApplicationNameForProjectDescriptionUsingNameWhenAbsentFromRequest() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		ProjectDescription description = this.converter.convert(request, this.metadata);
 		assertThat(description.getApplicationName()).isEqualTo("DemoApplication");
 	}
 
 	@Test
 	void convertShouldSetGroupIdAndArtifactIdFromRequest() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		request.setArtifactId("foo");
 		request.setGroupId("com.example");
 		ProjectDescription description = this.converter.convert(request, this.metadata);
@@ -120,7 +119,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertShouldSetBaseDirectoryFromRequest() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		request.setBaseDir("my-path");
 		ProjectDescription description = this.converter.convert(request, this.metadata);
 		assertThat(description.getBaseDirectory()).isEqualTo("my-path");
@@ -128,7 +127,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertShouldSetBuildSystemFromRequestType() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		request.setType("gradle-build");
 		ProjectDescription description = this.converter.convert(request, this.metadata);
 		assertThat(description.getBuildSystem().id()).isEqualTo("gradle");
@@ -136,7 +135,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertShouldSetDescriptionFromRequest() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		request.setDescription("This is my demo project");
 		ProjectDescription description = this.converter.convert(request, this.metadata);
 		assertThat(description.getDescription()).isEqualTo("This is my demo project");
@@ -144,7 +143,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertShouldSetPackagingFromRequest() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		request.setPackaging("war");
 		ProjectDescription description = this.converter.convert(request, this.metadata);
 		assertThat(description.getPackaging().id()).isEqualTo("war");
@@ -152,7 +151,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertShouldSetPlatformVersionFromRequest() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		request.setBootVersion("2.0.3");
 		ProjectDescription description = this.converter.convert(request, this.metadata);
 		assertThat(description.getPlatformVersion()).isEqualTo(Version.parse("2.0.3"));
@@ -160,7 +159,7 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertShouldUseDefaultPlatformVersionFromMetadata() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		ProjectDescription description = this.converter.convert(request, this.metadata);
 		assertThat(description.getPlatformVersion())
 				.isEqualTo(Version.parse("2.1.1.RELEASE"));
@@ -168,21 +167,21 @@ public class ProjectRequestToDescriptionConverterTests {
 
 	@Test
 	void convertShouldSetLanguageForProjectDescriptionFromRequest() {
-		BasicProjectRequest request = getBasicProjectRequest();
+		ProjectRequest request = getProjectRequest();
 		request.setJavaVersion("1.8");
 		ProjectDescription description = this.converter.convert(request, this.metadata);
 		assertThat(description.getLanguage().id()).isEqualTo("java");
 		assertThat(description.getLanguage().jvmVersion()).isEqualTo("1.8");
 	}
 
-	private BasicProjectRequest getRequest() {
-		BasicProjectRequest request = new BasicProjectRequest();
+	private ProjectRequest getRequest() {
+		ProjectRequest request = new ProjectRequest();
 		request.initialize(this.metadata);
 		return request;
 	}
 
-	private BasicProjectRequest getBasicProjectRequest() {
-		BasicProjectRequest request = getRequest();
+	private ProjectRequest getProjectRequest() {
+		ProjectRequest request = getRequest();
 		request.setLanguage("java");
 		request.setPackaging("jar");
 		request.setType("maven-build");

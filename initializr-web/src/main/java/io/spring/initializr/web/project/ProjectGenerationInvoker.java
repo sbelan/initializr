@@ -26,13 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.spring.initializr.InitializrException;
-import io.spring.initializr.generator.ProjectFailedEvent;
-import io.spring.initializr.generator.ProjectGeneratedEvent;
-import io.spring.initializr.generator.ProjectRequest;
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.buildsystem.BuildItemResolver;
-import io.spring.initializr.generator.buildsystem.gradle.GradleBuild;
-import io.spring.initializr.generator.buildsystem.maven.MavenBuild;
 import io.spring.initializr.generator.project.DefaultProjectAssetGenerator;
 import io.spring.initializr.generator.project.ProjectAssetGenerator;
 import io.spring.initializr.generator.project.ProjectDescription;
@@ -40,9 +35,7 @@ import io.spring.initializr.generator.project.ProjectGenerationContext;
 import io.spring.initializr.generator.project.ProjectGenerationException;
 import io.spring.initializr.generator.project.ProjectGenerator;
 import io.spring.initializr.generator.project.ResolvedProjectDescription;
-import io.spring.initializr.generator.spring.build.BuildCustomizer;
 import io.spring.initializr.generator.spring.build.BuildWriter;
-import io.spring.initializr.generator.spring.build.MetadataBuildItemMapper;
 import io.spring.initializr.generator.spring.build.MetadataBuildItemResolver;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.metadata.InitializrMetadataProvider;
@@ -78,11 +71,12 @@ public class ProjectGenerationInvoker {
 
 	/**
 	 * Invokes the project generation API that generates the entire project structure for
-	 * the specified {@link ProjectRequest}. Returns a directory containing the project.
+	 * the specified {@link WebProjectRequest}. Returns a directory containing the
+	 * project.
 	 * @param request the project request
 	 * @return the generated project structure
 	 */
-	public File invokeProjectStructureGeneration(ProjectRequest request) {
+	public File invokeProjectStructureGeneration(WebProjectRequest request) {
 		InitializrMetadata metadata = this.parentApplicationContext
 				.getBean(InitializrMetadataProvider.class).get();
 		try {
@@ -90,7 +84,7 @@ public class ProjectGenerationInvoker {
 					metadata);
 			ProjectGenerator projectGenerator = new ProjectGenerator(
 					(projectGenerationContext) -> customizeProjectGenerationContext(
-							projectGenerationContext, request, metadata));
+							projectGenerationContext, metadata));
 			Path path = projectGenerator.generate(projectDescription,
 					generateProject(request));
 			File file = path.toFile();
@@ -104,7 +98,7 @@ public class ProjectGenerationInvoker {
 		}
 	}
 
-	private ProjectAssetGenerator<Path> generateProject(ProjectRequest request) {
+	private ProjectAssetGenerator<Path> generateProject(WebProjectRequest request) {
 		return (context) -> {
 			Path projectDir = new DefaultProjectAssetGenerator().generate(context);
 			publishProjectGeneratedEvent(request, context);
@@ -115,11 +109,11 @@ public class ProjectGenerationInvoker {
 	/**
 	 * Invokes the project generation API that knows how to just write the build file.
 	 * Returns a directory containing the project for the specified
-	 * {@link ProjectRequest}.
+	 * {@link WebProjectRequest}.
 	 * @param request the project request
 	 * @return the generated build content
 	 */
-	public byte[] invokeBuildGeneration(ProjectRequest request) {
+	public byte[] invokeBuildGeneration(WebProjectRequest request) {
 		InitializrMetadata metadata = this.parentApplicationContext
 				.getBean(InitializrMetadataProvider.class).get();
 		try {
@@ -127,7 +121,7 @@ public class ProjectGenerationInvoker {
 					metadata);
 			ProjectGenerator projectGenerator = new ProjectGenerator(
 					(projectGenerationContext) -> customizeProjectGenerationContext(
-							projectGenerationContext, request, metadata));
+							projectGenerationContext, metadata));
 			return projectGenerator.generate(projectDescription, generateBuild(request));
 		}
 		catch (ProjectGenerationException | InitializrException ex) {
@@ -136,7 +130,7 @@ public class ProjectGenerationInvoker {
 		}
 	}
 
-	private ProjectAssetGenerator<byte[]> generateBuild(ProjectRequest request) {
+	private ProjectAssetGenerator<byte[]> generateBuild(WebProjectRequest request) {
 		return (context) -> {
 			byte[] content = generateBuild(context);
 			publishProjectGeneratedEvent(request, context);
@@ -197,17 +191,14 @@ public class ProjectGenerationInvoker {
 	}
 
 	private void customizeProjectGenerationContext(
-			AnnotationConfigApplicationContext context, ProjectRequest request,
-			InitializrMetadata metadata) {
+			AnnotationConfigApplicationContext context, InitializrMetadata metadata) {
 		context.setParent(this.parentApplicationContext);
 		context.registerBean(InitializrMetadata.class, () -> metadata);
 		context.registerBean(BuildItemResolver.class,
 				() -> new MetadataBuildItemResolver(metadata));
-		context.registerBean("temporaryBuildCustomizer", BuildCustomizer.class,
-				() -> buildCustomizer(request));
 	}
 
-	private void publishProjectGeneratedEvent(ProjectRequest request,
+	private void publishProjectGeneratedEvent(WebProjectRequest request,
 			ProjectGenerationContext context) {
 		Build build = context.getBeanProvider(Build.class).getIfAvailable();
 		InitializrMetadata metadata = context.getBean(InitializrMetadata.class);
@@ -215,29 +206,9 @@ public class ProjectGenerationInvoker {
 		this.eventPublisher.publishEvent(event);
 	}
 
-	private void publishProjectFailedEvent(ProjectRequest request, Exception cause) {
+	private void publishProjectFailedEvent(WebProjectRequest request, Exception cause) {
 		ProjectFailedEvent event = new ProjectFailedEvent(request, cause);
 		this.eventPublisher.publishEvent(event);
-	}
-
-	private BuildCustomizer<Build> buildCustomizer(ProjectRequest request) {
-		return (build) -> {
-			request.getBuildProperties().getVersions()
-					.forEach((versionProperty, valueSupplier) -> {
-						build.addVersionProperty(MetadataBuildItemMapper
-								.toVersionProperty(versionProperty), valueSupplier.get());
-					});
-			if (build instanceof MavenBuild) {
-				request.getBuildProperties().getMaven()
-						.forEach((key, valueSupplier) -> ((MavenBuild) build)
-								.setProperty(key, valueSupplier.get()));
-			}
-			if (build instanceof GradleBuild) {
-				request.getBuildProperties().getGradle()
-						.forEach((key, valueSupplier) -> ((GradleBuild) build).ext(key,
-								valueSupplier.get()));
-			}
-		};
 	}
 
 }

@@ -16,13 +16,13 @@
 
 package io.spring.initializr.actuate.stat;
 
-import io.spring.initializr.generator.ProjectRequest;
 import io.spring.initializr.generator.buildsystem.Build;
 import io.spring.initializr.generator.buildsystem.maven.MavenBuild;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.metadata.InitializrMetadataProvider;
 import io.spring.initializr.metadata.SimpleInitializrMetadataProvider;
 import io.spring.initializr.test.metadata.InitializrMetadataTestBuilder;
+import io.spring.initializr.web.project.WebProjectRequest;
 
 /**
  * @author Stephane Nicoll
@@ -39,8 +39,8 @@ abstract class AbstractInitializrStatTests {
 		return new SimpleInitializrMetadataProvider(metadata);
 	}
 
-	protected ProjectRequest createProjectRequest() {
-		ProjectRequest request = new ProjectRequest();
+	protected WebProjectRequest createProjectRequest() {
+		WebProjectRequest request = new WebProjectRequest();
 		request.initialize(this.metadata);
 		return request;
 	}

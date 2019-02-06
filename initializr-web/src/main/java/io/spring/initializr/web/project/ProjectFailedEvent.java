@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2018 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.initializr.generator;
+package io.spring.initializr.web.project;
 
 /**
  * Event published when an error occurred trying to generate a project.
@@ -25,8 +25,8 @@ public class ProjectFailedEvent extends ProjectRequestEvent {
 
 	private final Exception cause;
 
-	public ProjectFailedEvent(ProjectRequest projectRequest, Exception cause) {
-		super(projectRequest);
+	public ProjectFailedEvent(WebProjectRequest request, Exception cause) {
+		super(request);
 		this.cause = cause;
 	}
 

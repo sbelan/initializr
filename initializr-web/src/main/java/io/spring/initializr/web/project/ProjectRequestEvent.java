@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2018 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.initializr.generator;
+package io.spring.initializr.web.project;
 
 /**
  * Event published when a {@link ProjectRequest} has been processed.
@@ -25,12 +25,12 @@ package io.spring.initializr.generator;
  */
 public abstract class ProjectRequestEvent {
 
-	private final ProjectRequest projectRequest;
+	private final WebProjectRequest request;
 
 	private final long timestamp;
 
-	protected ProjectRequestEvent(ProjectRequest projectRequest) {
-		this.projectRequest = projectRequest;
+	protected ProjectRequestEvent(WebProjectRequest request) {
+		this.request = request;
 		this.timestamp = System.currentTimeMillis();
 	}
 
@@ -38,8 +38,8 @@ public abstract class ProjectRequestEvent {
 	 * Return the {@link ProjectRequest} used to generate the project.
 	 * @return the project request
 	 */
-	public ProjectRequest getProjectRequest() {
-		return this.projectRequest;
+	public WebProjectRequest getProjectRequest() {
+		return this.request;
 	}
 
 	/**
