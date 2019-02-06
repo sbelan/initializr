@@ -19,7 +19,6 @@ package io.spring.initializr.web.project;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.spring.initializr.generator.InvalidProjectRequestException;
 import io.spring.initializr.generator.buildsystem.BuildSystem;
 import io.spring.initializr.generator.buildsystem.gradle.GradleBuildSystem;
 import io.spring.initializr.generator.buildsystem.maven.MavenBuildSystem;
@@ -32,6 +31,7 @@ import io.spring.initializr.metadata.Dependency;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.metadata.Type;
 import io.spring.initializr.util.Version;
+import io.spring.initializr.web.InvalidProjectRequestException;
 
 import org.springframework.util.StringUtils;
 

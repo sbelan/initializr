@@ -18,11 +18,11 @@ package io.spring.initializr.web.project;
 
 import java.util.Collections;
 
-import io.spring.initializr.generator.InvalidProjectRequestException;
 import io.spring.initializr.generator.project.ProjectDescription;
 import io.spring.initializr.generator.version.Version;
 import io.spring.initializr.metadata.InitializrMetadata;
 import io.spring.initializr.test.metadata.InitializrMetadataTestBuilder;
+import io.spring.initializr.web.InvalidProjectRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

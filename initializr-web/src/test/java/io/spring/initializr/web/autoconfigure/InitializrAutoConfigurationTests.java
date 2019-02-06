@@ -16,10 +16,10 @@
 
 package io.spring.initializr.web.autoconfigure;
 
-import io.spring.initializr.generator.ProjectResourceLocator;
 import io.spring.initializr.metadata.DependencyMetadataProvider;
 import io.spring.initializr.metadata.InitializrMetadataProvider;
 import io.spring.initializr.util.TemplateRenderer;
+import io.spring.initializr.web.ProjectResourceLocator;
 import io.spring.initializr.web.project.MainController;
 import io.spring.initializr.web.project.ProjectGenerationInvoker;
 import io.spring.initializr.web.project.ProjectRequestToDescriptionConverter;
